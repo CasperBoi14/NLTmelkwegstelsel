@@ -1,0 +1,328 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600&display=swap');
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: #000;
+  overflow: hidden;
+  font-family: 'Exo 2', sans-serif;
+  color: #fff;
+  width: 100vw;
+  height: 100vh;
+}
+
+#canvas-container {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+}
+
+canvas { display: block; }
+
+/* ── PLANET INFO PANEL ── */
+#info-panel {
+  position: fixed;
+  right: 0;
+  top: 0;
+  width: 38vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 4rem 3.5rem 4rem 2rem;
+  z-index: 10;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateX(40px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+#info-panel.visible {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
+.planet-number {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.25em;
+  color: rgba(255,255,255,0.35);
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+}
+
+.planet-name {
+  font-family: 'Orbitron', monospace;
+  font-size: clamp(2.2rem, 4vw, 3.8rem);
+  font-weight: 900;
+  line-height: 1;
+  margin-bottom: 1.5rem;
+  letter-spacing: 0.04em;
+}
+
+.planet-divider {
+  width: 60px;
+  height: 2px;
+  margin-bottom: 1.5rem;
+  border-radius: 2px;
+}
+
+.planet-description {
+  font-size: 1rem;
+  line-height: 1.8;
+  color: rgba(255,255,255,0.7);
+  font-weight: 300;
+  max-width: 420px;
+}
+
+.planet-stats {
+  margin-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.stat-row {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  font-size: 0.82rem;
+  color: rgba(255,255,255,0.45);
+  letter-spacing: 0.05em;
+}
+
+.stat-label {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.3);
+  min-width: 90px;
+}
+
+/* ── NAVIGATION BUTTON ── */
+#next-btn {
+  position: fixed;
+  bottom: 2.5rem;
+  right: 2.5rem;
+  z-index: 20;
+  background: transparent;
+  border: 1.5px solid rgba(255,255,255,0.3);
+  color: #fff;
+  font-family: 'Orbitron', monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 1rem 2rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  opacity: 0;
+  transform: translateY(20px);
+  pointer-events: none;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+#next-btn.visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+#next-btn:hover {
+  background: rgba(255,255,255,0.12);
+  border-color: rgba(255,255,255,0.7);
+  box-shadow: 0 0 30px rgba(255,255,255,0.08);
+}
+
+#next-btn:active { transform: translateY(0) scale(0.97); }
+
+#next-btn.end-btn {
+  border-color: rgba(255,200,50,0.6);
+  color: rgba(255,220,80,1);
+}
+
+/* ── PROGRESS BAR ── */
+#progress-bar {
+  position: fixed;
+  left: 2.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  align-items: center;
+  opacity: 0;
+  transition: opacity 0.8s ease;
+}
+
+#progress-bar.visible { opacity: 1; }
+
+.progress-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.2);
+  border: 1px solid rgba(255,255,255,0.15);
+  transition: all 0.4s ease;
+  position: relative;
+}
+
+.progress-dot.active {
+  background: rgba(255,255,255,0.9);
+  border-color: rgba(255,255,255,0.9);
+  box-shadow: 0 0 8px rgba(255,255,255,0.5);
+  transform: scale(1.4);
+}
+
+.progress-dot.visited {
+  background: rgba(255,255,255,0.5);
+  border-color: rgba(255,255,255,0.4);
+}
+
+/* ── INTRO / LOADING ── */
+#intro-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+  transition: opacity 1.2s ease;
+}
+
+#intro-screen.fade-out { opacity: 0; pointer-events: none; }
+
+.intro-title {
+  font-family: 'Orbitron', monospace;
+  font-size: clamp(1.8rem, 4vw, 3.5rem);
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-align: center;
+  line-height: 1.2;
+  margin-bottom: 1.5rem;
+}
+
+.intro-subtitle {
+  font-size: 1rem;
+  color: rgba(255,255,255,0.45);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 3.5rem;
+  font-weight: 300;
+}
+
+.start-btn {
+  background: transparent;
+  border: 1.5px solid rgba(255,255,255,0.4);
+  color: #fff;
+  font-family: 'Orbitron', monospace;
+  font-size: 0.8rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  padding: 1.1rem 2.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.start-btn:hover {
+  background: rgba(255,255,255,0.1);
+  border-color: rgba(255,255,255,0.8);
+}
+
+/* ── TRAVEL OVERLAY ── */
+#travel-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: radial-gradient(ellipse at center, rgba(20,20,40,0.0) 0%, rgba(0,0,0,0.0) 100%);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+#travel-overlay.active {
+  opacity: 1;
+  background: radial-gradient(ellipse at center, rgba(5,5,15,0.3) 0%, rgba(0,0,0,0.85) 100%);
+}
+
+#speed-lines {
+  position: fixed;
+  inset: 0;
+  z-index: 49;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+#speed-lines.active { opacity: 1; }
+
+/* ── PLANET LEFT GLOW ── */
+.planet-glow-left {
+  position: fixed;
+  left: -10vw;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 55vw;
+  height: 55vw;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 5;
+  opacity: 0;
+  transition: opacity 1s ease;
+  filter: blur(60px);
+}
+
+.planet-glow-left.visible { opacity: 0.12; }
+
+/* ── END MESSAGE ── */
+#end-message {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(20px);
+  text-align: center;
+  padding: 2rem;
+}
+
+#end-message.show { display: flex; }
+
+.end-title {
+  font-family: 'Orbitron', monospace;
+  font-size: clamp(1.5rem, 3vw, 2.8rem);
+  font-weight: 900;
+  margin-bottom: 1rem;
+  letter-spacing: 0.06em;
+}
+
+.end-sub {
+  color: rgba(255,255,255,0.5);
+  font-size: 1rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 2.5rem;
+}
+
+.restart-btn {
+  background: transparent;
+  border: 1.5px solid rgba(255,255,255,0.35);
+  color: #fff;
+  font-family: 'Orbitron', monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 1rem 2rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.restart-btn:hover { background: rgba(255,255,255,0.1); }
