@@ -10,7 +10,7 @@
   *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
-    background: #000;
+    background: url('photo-1616712134411-6b6ae89bc3ba.avif') center center / cover no-repeat #000;
     overflow: hidden;
     font-family: 'Exo 2', sans-serif;
     color: #fff;
@@ -562,7 +562,7 @@ const PLANETS = [
 const container = document.getElementById('canvas-container');
 const W = window.innerWidth, H = window.innerHeight;
 
-const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 renderer.setSize(W, H);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.shadowMap.enabled = true;
@@ -573,8 +573,11 @@ container.appendChild(renderer.domElement);
 const scene = new THREE.Scene();
 scene.fog = new THREE.FogExp2(0x000005, 0.008);
 
-const camera = new THREE.PerspectiveCamera(60, W / H, 0.01, 2000);
-camera.position.set(0, 1.5, 8);
+const camera = new THREE.PerspectiveCamera(60, W / H, 0.01, 3000);
+camera.position.set(-15, 35, 170); // Camera heel ver terug, gericht op totaal overzicht!
+camera.lookAt(-15, 0, 0);
+// Spacing constant used for placing distant background elements (Milky Way, etc.)
+const PLANET_Z_SPACING = 800;
 
 // ═══════════════════════════════════════════════════════════════
 //  STARFIELD
@@ -693,16 +696,30 @@ function createNoiseTexture(width, height, isGasGiant, baseColorStr) {
 // ═══════════════════════════════════════════════════════════════
 //  BUILD PLANETS (GLTF MODELS)
 // ═══════════════════════════════════════════════════════════════
-const PLANET_Z_SPACING = 300; // GREATLY INCREASED SPACING for realistic feels
-const PLANET_X_OFFSET  = -3.0;
 const planetMeshes = [];
 const planetGroups = [];
 
 const gltfLoader = new THREE.GLTFLoader();
 
+// ═══════════════════════════════════════════════════════════════
+//  PROPORTIONELE SCHALING EN OVERZICHTS POSITIES OP DE X-AS
+// ═══════════════════════════════════════════════════════════════
+let currentXOffset = -100; 
+const trueRadii = [25.0, 0.38, 0.95, 1.0, 0.53, 11.2, 9.4, 4.0, 3.8, 0.18];
+
+PLANETS.forEach((p, i) => {
+  p.radius = trueRadii[i]; // Overschrijf hardcoded radius met proporties
+  if (i > 0) {
+    const prevR = PLANETS[i-1].radius;
+    const gap = Math.max(5, (prevR + p.radius) * 0.85); // Dynamische ruimte tussen planeten
+    currentXOffset += prevR + p.radius + gap;
+  }
+  p.xPos = currentXOffset;
+});
+
 PLANETS.forEach((p, i) => {
   const group = new THREE.Group();
-  group.position.set(PLANET_X_OFFSET, 0, -i * PLANET_Z_SPACING);
+  group.position.set(p.xPos, 0, 0); // Plaatsing op X-as in rijtje
 
   // Fallback mesh while loading
   const fallbackGeo = new THREE.SphereGeometry(p.radius, 32, 32);
@@ -786,7 +803,7 @@ PLANETS.forEach((p, i) => {
   });
   group.add(new THREE.Mesh(atmGeo, atmMat));
 
-  group.visible = false;
+  // group.visible = false; (verwijderd zodat alle planeten constant in het overzicht staan)
   scene.add(group);
   
   if (planetMeshes.length <= i) {
@@ -844,9 +861,10 @@ function createUFO() {
 }
 
 const ufo = createUFO();
-ufo.position.set(1.5, 0.5, 6);
-ufo.rotation.y = Math.PI; // Face the right way towards planets (you may need to tweak depending on shuttle's original export rotation)
-scene.add(ufo);
+// Attach the UFO to the camera so it stays fixed on the left side of the screen
+camera.add(ufo);
+ufo.position.set(-22, -6, -40); // left of the view, slightly below and in front
+ufo.rotation.y = Math.PI; // Face the right way towards planets
 
 // ═══════════════════════════════════════════════════════════════
 //  STATE
@@ -992,42 +1010,35 @@ function goToPlanet(index) {
   }, 300);
 
   // Show next planet group
-  if (index >= 0) planetGroups[index].visible = true;
-  // Keep previous planet visible so we can fly away from it!
-  if (currentPlanet >= 0) planetGroups[currentPlanet].visible = true;
-
+  // (We don't toggle visibility anymore, they stay visible for the overview)
+  
   // Camera travel
   const targetGroup = planetGroups[index];
   const targetPos = targetGroup.position.clone();
   const p = PLANETS[index];
-  const r = p.radius; // use new larger radius for offset
+  const r = p.radius; 
 
-  // Camera will sit to the right and slightly in front (shifted dynamically based on planet size)
+  // Dicht op de planeet voor vergrote, indrukwekkende weergave!
+  const camDist = Math.max(r * 2.1, 3.5); 
+  
   const camTarget = new THREE.Vector3(
-    targetPos.x + (r * 2.5) + 6,
-    targetPos.y + (r * 0.5) + 1,
-    targetPos.z + (r * 2.0) + 4
+    p.xPos,
+    r * 0.1,
+    camDist
   );
-  const lookTarget = new THREE.Vector3(targetPos.x, targetPos.y, targetPos.z);
+  // Kijkt iets naar rechts voorbij de planeet, zodat de planeet zélf meer gecentreerd mid-links in beeld ligt!
+  const lookTarget = new THREE.Vector3(p.xPos + (r * 0.8) + 1.2, 0, 0);
 
   camState.fromPos.copy(camera.position);
   camState.toPos.copy(camTarget);
   camState.fromLook.copy(camera.getWorldDirection(new THREE.Vector3()).multiplyScalar(10).add(camera.position));
   camState.toLook.copy(lookTarget);
   camState.progress = 0;
-  camState.duration = index === 0 ? 2.0 : 5.0; // Increased travel duration to feel the vastness
+  camState.duration = index === 0 ? 3.0 : 4.0; 
 
-  // UFO travels ahead of camera
-  const ufoTarget = new THREE.Vector3(
-    targetPos.x + (r * 1.5) + 2.5,
-    targetPos.y + (r * 0.2) + 0.2,
-    targetPos.z + (r * 1.2) + 2.0
-  );
-  const ufoFrom = ufo.position.clone();
-
+  // Camera-only travel (UFO stays fixed in camera space to keep UI text visible)
   const travelDuration = camState.duration * 1000;
 
-  // Animate travel
   let start = null;
   function animTravel(ts) {
     if (!start) start = ts;
@@ -1035,53 +1046,13 @@ function goToPlanet(index) {
     const raw = Math.min(elapsed / travelDuration, 1);
     const ease = easeInOutCubic(raw);
 
-    // Give UFO a super sick dynamic flight path (banking, dropping, pitching into hyper-speed)
-    let flightCurveOffset = Math.sin(raw * Math.PI); // 0 -> 1 -> 0
-    
-    // Dynamic Rotation: Bank the spaceship into the warp curve
-    // The ship tilts 'down' into the Z-direction and banks left
-    let targetRotationX = 0;
-    let targetRotationZ = 0;
-    
-    if (raw < 0.8) {
-       targetRotationX = flightCurveOffset * -0.5; // Pitch down as it speeds
-       targetRotationZ = flightCurveOffset * 0.6;  // Bank sideways
-    }
-    
-    ufo.rotation.x = THREE.MathUtils.lerp(0, targetRotationX, easeInOutCubic(raw * 1.5));
-    ufo.rotation.z = THREE.MathUtils.lerp(0, targetRotationZ, easeInOutCubic(raw * 1.5));
-    
-    // Thruster stretching animation
-    if(ufo.userData.thr) {
-       ufo.userData.thr.scale.y = 1 + flightCurveOffset * 4.0; // Thruster trail extends during flight
-       ufo.userData.thr.material.opacity = 0.5 + flightCurveOffset * 0.5; // Thruster gets brighter
-    }
-
     camera.position.lerpVectors(camState.fromPos, camState.toPos, ease);
     const lookNow = new THREE.Vector3().lerpVectors(camState.fromLook, camState.toLook, ease);
     camera.lookAt(lookNow);
-    
-    // UFO Position smoothing with a slight curve upwards
-    const newPos = new THREE.Vector3().lerpVectors(ufoFrom, ufoTarget, ease);
-    newPos.y += flightCurveOffset * 1.5; // Make the ship arc over space obstacles
-    ufo.position.copy(newPos);
 
     if (raw < 1) {
       requestAnimationFrame(animTravel);
     } else {
-      // Arrived (flatten out model animations)
-      ufo.rotation.x = 0;
-      ufo.rotation.z = 0;
-      if(ufo.userData.thr) {
-        ufo.userData.thr.scale.y = 1.0;
-        ufo.userData.thr.material.opacity = 0.5;
-      }
-      
-      // Hide Previous Planet to save Memory
-      if (currentPlanet >= 0 && currentPlanet !== index) {
-        planetGroups[currentPlanet].visible = false;
-      }
-
       setTimeout(() => {
         travelOverlay.classList.remove('active');
         speedLines.classList.remove('active');
@@ -1180,8 +1151,19 @@ function triggerEndSequence() {
   let mwFadeInStarted = false;
 
   // UFO Fly-by animation straight at the camera AND Camera pull-back
-  const startPos = ufo.position.clone();
-  
+  // If the UFO is attached to the camera, detach it to world space so it can fly independently
+  let startPos;
+  if (ufo.parent === camera) {
+    const worldPos = new THREE.Vector3();
+    ufo.getWorldPosition(worldPos);
+    // move ufo to scene and preserve world position
+    scene.add(ufo);
+    ufo.position.copy(worldPos);
+    startPos = worldPos.clone();
+  } else {
+    startPos = ufo.position.clone();
+  }
+
   const targetPos = camera.position.clone();
   targetPos.z -= 150.0; // UFO shoots fast into the distance towards the milky way
   targetPos.y += 5.5; 
@@ -1271,17 +1253,21 @@ document.getElementById('start-btn').addEventListener('click', () => {
 // ═══════════════════════════════════════════════════════════════
 document.getElementById('restart-btn').addEventListener('click', () => {
   document.getElementById('end-message').classList.remove('show');
-  // Reset all planet visibility
-  planetGroups.forEach(g => { g.visible = false; });
+  // Planeten blijven allemaal zichtbaar (geen visiblity reset meer)
   
   // Reset Milky Way
   const mw = scene.getObjectByName('milkyWay');
   if(mw) mw.material.opacity = 0;
 
-  // Reset camera
-  camera.position.set(0, 1.5, 8);
-  camera.rotation.set(0, 0, 0); // reset rotation from lookAt
-  ufo.position.set(1.5, 0.5, 6);
+  // Reset camera for overview!
+  camera.position.set(-15, 35, 170);
+  camera.lookAt(-15, 0, 0); 
+
+  // Ensure UFO is attached to the camera and placed back on the left side of the view
+  if (ufo.parent !== camera) {
+    camera.add(ufo);
+  }
+  ufo.position.set(-22, -6, -40);
   ufo.rotation.set(0, Math.PI, 0); // reset ufo rotation
   
   currentPlanet = -1;
@@ -1308,23 +1294,14 @@ function animate() {
 
   // Animate planets
   PLANETS.forEach((p, i) => {
-    if (!p.group.visible) return;
-    // Axis rotation
-    p.mesh.rotation.y += delta * (p.isLightSource ? 0.08 : 0.04 + i * 0.003);
-
-    // Cloud rotation (Aarde)
-    if (p.mesh.userData.clouds) {
+    // Planets remain static now to keep UI text readable
+    // Keep any cloud layers rotating if explicitly provided
+    if (p.mesh && p.mesh.userData && p.mesh.userData.clouds) {
       p.mesh.userData.clouds.rotation.y += delta * 0.06;
     }
-
-    // Subtle floating
-    p.group.position.y = Math.sin(t * 0.3 + i) * 0.08;
   });
 
-  // UFO floating and bobbing (idle movement)
-  ufo.position.y += Math.sin(t * 1.8) * 0.0008;
-  // Removed continuous rotation so the shuttle stands still when arrived!
-  ufo.rotation.z = Math.sin(t * 0.9) * 0.02; // Very gentle stabilization wobble
+  // UFO is attached to the camera and should remain fixed in view; no idle motion here.
 
   // UFO engine glow pulse
   if (ufo.userData.ring) {
