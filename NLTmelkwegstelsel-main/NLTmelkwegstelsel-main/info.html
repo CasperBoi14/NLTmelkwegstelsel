@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Info | Reis door het Zonnestelsel</title>
+  <meta name="description" content="Informatiepagina met een startknop naar de interactieve zonnestelsel-reis.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #05070d;
+      --panel: rgba(10, 14, 24, 0.7);
+      --border: rgba(255, 255, 255, 0.09);
+      --text: #f6f8ff;
+      --muted: rgba(246, 248, 255, 0.7);
+      --accent: #9ad7ff;
+      --accent-2: #ffd57a;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: 'Inter', sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 20% 20%, rgba(86, 119, 255, 0.18), transparent 28%),
+        radial-gradient(circle at 80% 20%, rgba(255, 213, 122, 0.12), transparent 24%),
+        linear-gradient(180deg, #03050a 0%, #05070d 100%);
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image: radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px);
+      background-size: 28px 28px;
+      opacity: 0.08;
+    }
+
+    .page {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(300px, 0.85fr);
+      gap: 2rem;
+      align-items: center;
+      width: min(1180px, calc(100% - 2rem));
+      margin: 0 auto;
+      padding: 2rem 0;
+    }
+
+    .copy {
+      position: relative;
+      z-index: 1;
+    }
+
+    .eyebrow {
+      margin: 0 0 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.24em;
+      color: rgba(246, 248, 255, 0.45);
+      font-size: 0.78rem;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: clamp(3rem, 7vw, 6rem);
+      line-height: 0.95;
+      letter-spacing: -0.05em;
+      max-width: 11ch;
+    }
+
+    .lead {
+      margin: 1.4rem 0 0;
+      max-width: 60ch;
+      color: var(--muted);
+      font-size: clamp(1rem, 1.35vw, 1.15rem);
+      line-height: 1.7;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .card {
+      padding: 1.1rem;
+      border: 1px solid var(--border);
+      border-radius: 1.3rem;
+      background: var(--panel);
+      backdrop-filter: blur(18px);
+    }
+
+    .card strong {
+      display: block;
+      font-size: 1.3rem;
+      margin-bottom: 0.45rem;
+    }
+
+    .card p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.9rem;
+      margin-top: 2rem;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 3rem;
+      padding: 0.85rem 1.2rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      text-decoration: none;
+      color: var(--text);
+      transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+    }
+
+    .button:hover { transform: translateY(-1px); }
+    .button--primary {
+      background: linear-gradient(135deg, rgba(154, 215, 255, 0.2), rgba(255, 213, 122, 0.12));
+      border-color: rgba(154, 215, 255, 0.28);
+    }
+    .button--ghost { background: rgba(255, 255, 255, 0.03); }
+
+    .orbit-panel {
+      position: relative;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: radial-gradient(circle at 50% 50%, rgba(255, 214, 136, 0.08), rgba(255,255,255,0.02) 35%, transparent 55%);
+      display: grid;
+      place-items: center;
+      box-shadow: 0 20px 80px rgba(0,0,0,0.35);
+    }
+
+    .orbit {
+      position: absolute;
+      inset: 50%;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .orbit.large { width: 84%; height: 84%; }
+    .orbit.medium { width: 60%; height: 60%; }
+    .orbit.small { width: 36%; height: 36%; }
+
+    .sun {
+      width: 22%;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #fff8ce, #ffd57a 40%, #fd9e3d 78%, #8f3f0d 100%);
+      box-shadow: 0 0 60px rgba(255, 209, 111, 0.45);
+    }
+
+    .planet {
+      position: absolute;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.18);
+    }
+
+    .planet.one { width: 2rem; height: 2rem; top: 20%; right: 22%; background: #c9b29d; }
+    .planet.two { width: 2.2rem; height: 2.2rem; bottom: 20%; left: 22%; background: #5d9dff; }
+    .planet.three { width: 3rem; height: 3rem; top: 50%; right: 12%; background: linear-gradient(135deg, #f0d28a, #9f8351); }
+    .planet.three::after {
+      content: '';
+      position: absolute;
+      inset: 50% -40% auto -40%;
+      height: 0.3rem;
+      border-radius: 999px;
+      background: rgba(255, 234, 185, 0.5);
+      transform: translateY(-50%) rotate(-16deg);
+    }
+
+    @media (max-width: 900px) {
+      .page { grid-template-columns: 1fr; }
+      h1 { max-width: 100%; }
+      .orbit-panel { width: min(82vw, 420px); justify-self: center; }
+    }
+
+    @media (max-width: 640px) {
+      .cards { grid-template-columns: 1fr; }
+      .page { width: min(100% - 1rem, 1180px); }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="copy">
+      <p class="eyebrow">informatiepagina</p>
+      <h1>Reis door het zonnestelsel.</h1>
+      <p class="lead">Deze pagina geeft eerst de context. De knop hieronder opent de nieuwe reispagina met de volledige travel-sequence, en aan het einde kom je hier weer terug.</p>
+      <div class="cards">
+        <div class="card">
+          <strong>Startknop</strong>
+          <p>Open de interactieve reis met alle planeten en 3D-modellen.</p>
+        </div>
+        <div class="card">
+          <strong>Eindknop</strong>
+          <p>Na de reis keer je terug naar deze informatiepagina.</p>
+        </div>
+      </div>
+      <div class="actions">
+        <a class="button button--primary" href="index.html">Start de reis</a>
+      </div>
+    </section>
+    <div class="orbit-panel" aria-hidden="true">
+      <div class="orbit large"></div>
+      <div class="orbit medium"></div>
+      <div class="orbit small"></div>
+      <div class="sun"></div>
+      <div class="planet one"></div>
+      <div class="planet two"></div>
+      <div class="planet three"></div>
+    </div>
+  </main>
+</body>
+</html>
