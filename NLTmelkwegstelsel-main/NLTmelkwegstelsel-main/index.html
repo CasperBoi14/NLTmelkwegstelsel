@@ -39,37 +39,29 @@
     padding: 4rem 3.5rem 4rem 2rem;
     z-index: 10;
     pointer-events: none;
-    background: linear-gradient(180deg, rgba(10, 12, 20, 0.58), rgba(6, 8, 14, 0.34));
-    border-left: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 2rem 0 0 2rem;
-    box-shadow: -24px 0 70px rgba(0, 0, 0, 0.3);
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
-    overflow: hidden;
     opacity: 0;
     transform: translateX(40px);
     transition: opacity 0.8s ease, transform 0.8s ease;
+    isolation: isolate;
   }
 
   #info-panel::before {
-    content: '';
+    content: "";
     position: absolute;
-    inset: 1rem;
-    border-radius: 1.5rem;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    background: radial-gradient(circle at top left, rgba(255, 255, 255, 0.08), transparent 38%);
-    pointer-events: none;
+    inset: 8% 1.25rem 8% 0;
+    border-radius: 1.8rem 0 0 1.8rem;
+    background: linear-gradient(150deg, rgba(6, 12, 24, 0.66), rgba(4, 8, 18, 0.36));
+    border: 1px solid rgba(255,255,255,0.12);
+    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(9px);
+    -webkit-backdrop-filter: blur(9px);
+    z-index: -1;
   }
 
   #info-panel.visible {
     opacity: 1;
     transform: translateX(0);
     pointer-events: auto;
-  }
-
-  #info-panel > * {
-    position: relative;
-    z-index: 1;
   }
 
   .planet-number {
@@ -223,45 +215,6 @@
     transition: opacity 1.2s ease;
   }
 
-  /* Earth loader styles (initial loading screen) */
-  .earth-loader {
-    --watercolor: #3344c1;
-    --landcolor: #7cc133;
-    width: 7.5em;
-    height: 7.5em;
-    background-color: var(--watercolor);
-    position: relative;
-    overflow: hidden;
-    border-radius: 50%;
-    box-shadow: inset 0em 0.5em rgb(255, 255, 255, 0.25), inset 0em -0.5em rgb(0, 0, 0, 0.25);
-    border: solid 0.15em white;
-    animation: startround 1s;
-    animation-iteration-count: 1;
-    margin-bottom: 1rem;
-  }
-
-  .earth-loader p { display:none; }
-
-  .earth-loader svg:nth-child(1) { position: absolute; bottom: -2em; width: 7em; height: auto; animation: round1 5s infinite linear 0.75s; }
-  .earth-loader svg:nth-child(2) { position: absolute; top: -3em; width: 7em; height: auto; animation: round1 5s infinite linear; }
-  .earth-loader svg:nth-child(3) { position: absolute; top: -2.5em; width: 7em; height: auto; animation: round2 5s infinite linear; }
-  .earth-loader svg:nth-child(4) { position: absolute; bottom: -2.2em; width: 7em; height: auto; animation: round2 5s infinite linear 0.75s; }
-
-  @keyframes startround { 0% { filter: brightness(500%); box-shadow: none; } 75% { filter: brightness(500%); box-shadow: none; } 100% { filter: brightness(100%); box-shadow: inset 0em 0.5em rgb(255, 255, 255, 0.25), inset 0em -0.5em rgb(0, 0, 0, 0.25); } }
-
-  @keyframes round1 { 0% { left: -2em; opacity: 100%; transform: skewX(0deg) rotate(0deg); } 30% { left: -6em; opacity: 100%; transform: skewX(-25deg) rotate(25deg); } 31% { left: -6em; opacity: 0%; transform: skewX(-25deg) rotate(25deg); } 35% { left: 7em; opacity: 0%; transform: skewX(25deg) rotate(-25deg); } 45% { left: 7em; opacity: 100%; transform: skewX(25deg) rotate(-25deg); } 100% { left: -2em; opacity: 100%; transform: skewX(0deg) rotate(0deg); } }
-
-  @keyframes round2 { 0% { left: 5em; opacity: 100%; transform: skewX(0deg) rotate(0deg); } 75% { left: -7em; opacity: 100%; transform: skewX(-25deg) rotate(25deg); } 76% { left: -7em; opacity: 0%; transform: skewX(-25deg) rotate(25deg); } 77% { left: 8em; opacity: 0%; transform: skewX(25deg) rotate(-25deg); } 80% { left: 8em; opacity: 100%; transform: skewX(25deg) rotate(-25deg); } 100% { left: 5em; opacity: 100%; transform: skewX(0deg) rotate(0deg); } }
-
-  /* hide intro content while loading */
-  #intro-screen.loading .intro-title,
-  #intro-screen.loading .intro-subtitle,
-  #intro-screen.loading .start-btn {
-    opacity: 0;
-    transform: translateY(6px);
-    pointer-events: none;
-  }
-
   #intro-screen.fade-out { opacity: 0; pointer-events: none; }
 
   .intro-title {
@@ -284,41 +237,23 @@
   }
 
   .start-btn {
-    background: linear-gradient(135deg, rgba(154,215,255,0.14), rgba(255,213,122,0.08));
-    border: none;
-    color: rgba(10,16,28,0.96);
+    background: transparent;
+    border: 1.5px solid rgba(255,255,255,0.4);
+    color: #fff;
     font-family: 'Orbitron', monospace;
-    font-size: 0.95rem;
-    letter-spacing: 0.14em;
+    font-size: 0.8rem;
+    letter-spacing: 0.25em;
     text-transform: uppercase;
-    padding: 0.95rem 2.2rem 0.95rem 1.05rem;
+    padding: 1.1rem 2.5rem;
     cursor: pointer;
-    transition: transform 180ms ease, box-shadow 180ms ease, opacity 180ms ease;
-    backdrop-filter: blur(8px);
-    border-radius: 999px;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.9rem;
-    box-shadow: 0 12px 30px rgba(10,20,40,0.28), inset 0 1px 0 rgba(255,255,255,0.25);
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
   }
 
-  .start-btn::before {
-    content: '→';
-    display: inline-grid;
-    place-items: center;
-    width: 2.1rem;
-    height: 2.1rem;
-    border-radius: 0.6rem;
-    background: linear-gradient(180deg,#ffffff,#d9f1ff);
-    color: #0a1322;
-    font-weight: 800;
-    box-shadow: 0 6px 18px rgba(10,20,40,0.18);
-    transform: translateX(-2px);
+  .start-btn:hover {
+    background: rgba(255,255,255,0.1);
+    border-color: rgba(255,255,255,0.8);
   }
-
-  .start-btn:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(10,20,40,0.36); }
-
-  .start-btn:active { transform: translateY(0) scale(0.99); opacity: 0.98; }
 
   /* ── TRAVEL OVERLAY ── */
   #travel-overlay {
@@ -438,13 +373,7 @@
 <body>
 
 <!-- ── INTRO SCREEN ── -->
-<div id="intro-screen" class="loading">
-  <div class="earth-loader" aria-hidden="true">
-    <svg viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg"><circle cx="25" cy="25" r="20" fill="rgba(255,255,255,0.06)"/></svg>
-    <svg viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg"><circle cx="25" cy="25" r="20" fill="rgba(255,255,255,0.04)"/></svg>
-    <svg viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg"><circle cx="25" cy="25" r="20" fill="rgba(255,255,255,0.03)"/></svg>
-    <svg viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg"><circle cx="25" cy="25" r="20" fill="rgba(255,255,255,0.02)"/></svg>
-  </div>
+<div id="intro-screen">
   <div class="intro-title">Reis door het<br>Zonnestelsel</div>
   <!-- AANPASBARE TEKST: Ondertitel intro scherm -->
   <div class="intro-subtitle">Stap aan boord en verken de planeten</div>
@@ -498,7 +427,7 @@
       <span class="stat-value" id="stat-diameter">—</span>
     </div>
     <div class="stat-row">
-      <span class="stat-label">Afstand tot aarde</span>
+      <span class="stat-label">Afstand</span>
       <span class="stat-value" id="stat-distance">—</span>
     </div>
   </div>
@@ -792,7 +721,6 @@ PLANETS.forEach((p, i) => {
 PLANETS.forEach((p, i) => {
   const group = new THREE.Group();
   group.position.set(p.xPos, 0, 0); // Plaatsing op X-as in rijtje
-  p.group = group;
 
   // Fallback mesh while loading
   const fallbackGeo = new THREE.SphereGeometry(p.radius, 32, 32);
@@ -1313,16 +1241,6 @@ document.getElementById('next-btn').addEventListener('click', () => {
 // ═══════════════════════════════════════════════════════════════
 //  START
 // ═══════════════════════════════════════════════════════════════
-// Brief initial loader: show earth-loader for 0.8s, then reveal intro
-const _intro = document.getElementById('intro-screen');
-if (_intro) {
-  setTimeout(() => {
-    _intro.classList.remove('loading');
-    const loaderEl = _intro.querySelector('.earth-loader');
-    if (loaderEl) loaderEl.style.display = 'none';
-  }, 800);
-}
-
 document.getElementById('start-btn').addEventListener('click', () => {
   const intro = document.getElementById('intro-screen');
   intro.classList.add('fade-out');
@@ -1361,10 +1279,7 @@ function animate() {
 
   // Animate planets
   PLANETS.forEach((p, i) => {
-    // Keep the spin subtle so the info panel remains easy to read
-    if (p.group) {
-      p.group.rotation.y += delta * 0.08;
-    }
+    // Planets remain static now to keep UI text readable
     // Keep any cloud layers rotating if explicitly provided
     if (p.mesh && p.mesh.userData && p.mesh.userData.clouds) {
       p.mesh.userData.clouds.rotation.y += delta * 0.06;

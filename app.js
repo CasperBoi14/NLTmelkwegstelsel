@@ -43,7 +43,7 @@ const bodies = [
     diameter: 12742,
     distance: 0,
     diameterLabel: '12.742 km',
-    distanceLabel: '0 m',
+    distanceLabel: '0 km',
     color: '#5d9dff',
     modelPath: 'model/earth.glb',
   },
@@ -177,7 +177,7 @@ function updateOverview() {
   overviewChart.innerHTML = bodies.map((body) => {
     const metricValue = body[metricKey];
     const metricWidth = metricValue === 0
-      ? 0
+      ? 4
       : Math.max(4, (metricValue / metricMax) * 100);
     const metricText = overviewMode === 'diameter' ? body.diameterLabel : body.distanceLabel;
 
@@ -280,18 +280,9 @@ buildQuiz();
 updateOverview();
 setSelectedBody(0);
 
-// overview segmented control
-const overviewBtns = document.querySelectorAll('.overview-switch.segmented .seg-btn');
-overviewBtns.forEach((btn) => {
-  btn.addEventListener('click', () => {
-    const mode = btn.dataset.mode;
-    overviewMode = mode;
-    overviewBtns.forEach((b) => {
-      b.classList.toggle('is-active', b === btn);
-      b.setAttribute('aria-pressed', String(b === btn));
-    });
-    // update label if present
-    if (overviewModeLabel) overviewModeLabel.textContent = overviewMode === 'diameter' ? 'Diameter' : 'Afstand';
-    updateOverview();
-  });
+overviewToggle.addEventListener('click', () => {
+  overviewMode = overviewMode === 'diameter' ? 'distance' : 'diameter';
+  overviewToggle.setAttribute('aria-pressed', String(overviewMode === 'distance'));
+  overviewModeLabel.textContent = overviewMode === 'diameter' ? 'Diameter' : 'Afstand';
+  updateOverview();
 });

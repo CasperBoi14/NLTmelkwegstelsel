@@ -21,7 +21,7 @@
         Verken alle planeten in 3D, vergelijk diameter en afstand met een live overzicht, test je kennis in een korte quiz en stap daarna meteen door naar de explorer.
       </p>
       <div class="hero__actions">
-        <a class="button button--primary" href="NLTmelkwegstelsel-main/NLTmelkwegstelsel-main/index.html">Melkweg Route</a>
+        <a class="button button--primary" href="NLTmelkwegstelsel-main/NLTmelkwegstelsel-main/index.html">Start tour</a>
         <a class="button button--ghost" href="#models">Bekijk alle 3D modellen</a>
       </div>
       <div class="hero__stats">
@@ -66,7 +66,7 @@
     <section class="section section--focus">
       <div class="section__heading section__heading--split">
         <div>
-          <p class="eyebrow">Selecteer een planeet</p>
+          <p class="eyebrow">selected body</p>
           <h2 id="selected-name">Zon</h2>
         </div>
         <p class="section__note" id="selected-summary">De ster in het midden van het zonnestelsel.</p>
@@ -82,7 +82,7 @@
               <strong id="selected-diameter">1.392.700 km</strong>
             </div>
             <div>
-              <span class="detail-label">Afstand tot aarde</span>
+              <span class="detail-label">Afstand</span>
               <strong id="selected-distance">150 miljoen km</strong>
             </div>
             <div>
@@ -103,15 +103,12 @@
           <h2>Diameter en afstand in één minimalistische vergelijking.</h2>
         </div>
         <div class="overview-toolbar">
-          <div class="overview-switch segmented" role="tablist" aria-label="Weergave voor planetenoverzicht">
-            <button class="seg-btn" data-mode="distance" role="tab" aria-pressed="false">
-              <span class="seg-icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7 12H17" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 9l-3 3 3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 9l3 3-3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-              <span>Afstand</span>
+          <div class="overview-switch" role="group" aria-label="Weergave voor planetenoverzicht">
+            <span id="overview-mode-label">Diameter</span>
+            <button class="overview-toggle" id="overview-toggle" type="button" aria-pressed="false">
+              <span class="overview-toggle__thumb"></span>
             </button>
-            <button class="seg-btn is-active" data-mode="diameter" role="tab" aria-pressed="true">
-              <span class="seg-icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="7.2" stroke="currentColor" stroke-width="1.6"/><path d="M8.5 12h7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-              <span>Diameter</span>
-            </button>
+            <span>Afstand</span>
           </div>
         </div>
       </div>
