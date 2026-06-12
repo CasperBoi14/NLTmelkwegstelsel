@@ -27,7 +27,6 @@
       <div class="hero__stats">
         <div class="stat-card"><span>9</span><p>hemellichamen</p></div>
         <div class="stat-card"><span>3</span><p>quizvragen</p></div>
-        <div class="stat-card"><span>1</span><p>switch</p></div>
       </div>
     </div>
     <div class="hero__orbital" aria-hidden="true">
@@ -66,7 +65,7 @@
     <section class="section section--focus">
       <div class="section__heading section__heading--split">
         <div>
-          <p class="eyebrow">selected body</p>
+          <p class="eyebrow">geselecteerde planeet</p>
           <h2 id="selected-name">Zon</h2>
         </div>
         <p class="section__note" id="selected-summary">De ster in het midden van het zonnestelsel.</p>
@@ -82,7 +81,7 @@
               <strong id="selected-diameter">1.392.700 km</strong>
             </div>
             <div>
-              <span class="detail-label">Afstand</span>
+              <span class="detail-label">Afstand tot aarde</span>
               <strong id="selected-distance">150 miljoen km</strong>
             </div>
             <div>
@@ -99,20 +98,42 @@
     <section class="section" id="overview">
       <div class="section__heading section__heading--split">
         <div>
-          <p class="eyebrow">overview</p>
+          <p class="eyebrow">grootte info</p>
           <h2>Diameter en afstand in één minimalistische vergelijking.</h2>
         </div>
         <div class="overview-toolbar">
-          <div class="overview-switch" role="group" aria-label="Weergave voor planetenoverzicht">
-            <span id="overview-mode-label">Diameter</span>
-            <button class="overview-toggle" id="overview-toggle" type="button" aria-pressed="false">
-              <span class="overview-toggle__thumb"></span>
-            </button>
-            <span>Afstand</span>
+          <div class="segmented-control" id="overview-control" data-active="diameter">
+            <div class="seg-glider"></div>
+            <button class="seg-btn is-active" data-mode="diameter" type="button">Diameter</button>
+            <button class="seg-btn" data-mode="distance" type="button">Afstand tot aarde</button>
           </div>
         </div>
       </div>
       <div class="overview-card" id="overview-chart"></div>
+    </section>
+
+    <section class="section" id="deep-space">
+      <div class="section__heading">
+        <p class="eyebrow">Deep Space</p>
+        <h2>Verken de wonderen buiten ons zonnestelsel.</h2>
+      </div>
+      <div class="intro-grid">
+        <article class="info-panel">
+          <model-viewer src="model/black_hole.glb" alt="3D model van Sagittarius A*" auto-rotate camera-controls shadow-intensity="1" exposure="1.2" interaction-prompt="none" reveal="auto" style="width: 100%; height: 250px; background: transparent;"></model-viewer>
+          <h3>Sagittarius A*</h3>
+          <p>Het superzware zwarte gat in het centrum van ons melkwegstelsel. Het heeft een massa van meer dan 4 miljoen keer die van de zon.</p>
+        </article>
+        <article class="info-panel">
+          <img src="image.png" alt="Orionnevel" style="width: 100%; height: 250px; object-fit: cover; border-radius: 12px; margin-bottom: 1rem;">
+          <h3>Orionnevel</h3>
+          <p>Een enorme wolk van gas en stof (de Orionnevel) op ongeveer 1.350 lichtjaar afstand, waar voortdurend nieuwe sterren worden gevormd.</p>
+        </article>
+        <article class="info-panel">
+          <img src="Melkwegstelsel.png" alt="Melkwegstelsel" style="width: 100%; height: 250px; object-fit: cover; border-radius: 12px; margin-bottom: 1rem;">
+          <h3>Melkwegstelsel</h3>
+          <p>Ons eigen melkwegstelsel: een spiraalvormig sterrenstelsel met honderden miljarden sterren, waar ook ons zonnestelsel deel van uitmaakt.</p>
+        </article>
+      </div>
     </section>
 
     <section class="section" id="models">
@@ -135,6 +156,7 @@
     </section>
   </main>
 
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

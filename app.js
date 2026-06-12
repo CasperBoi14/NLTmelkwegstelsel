@@ -107,6 +107,18 @@ const bodies = [
     color: '#3050e8',
     modelPath: 'model/neptune.glb',
   },
+  {
+    name: 'Sagittarius A*',
+    type: 'Zwart gat',
+    summary: 'Het centrum van de Melkweg.',
+    description: 'Een superzwaar zwart gat in het centrum van ons Melkwegstelsel. Het heeft een massa van meer dan 4 miljoen keer die van de zon.',
+    diameter: 44000000,
+    distance: 25000000000000000,
+    diameterLabel: '44 miljoen km',
+    distanceLabel: '26.000 lichtjaar',
+    color: '#000000',
+    modelPath: 'model/black_hole.glb',
+  },
 ];
 
 const quizQuestions = [
@@ -136,8 +148,7 @@ const selectedType = document.getElementById('selected-type');
 const selectedModel = document.getElementById('selected-model');
 const picker = document.getElementById('planet-picker');
 const overviewChart = document.getElementById('overview-chart');
-const overviewToggle = document.getElementById('overview-toggle');
-const overviewModeLabel = document.getElementById('overview-mode-label');
+const overviewControl = document.getElementById('overview-control');
 const modelGrid = document.getElementById('model-grid');
 const quiz = document.getElementById('quiz');
 
@@ -171,7 +182,7 @@ function updateOverview() {
   const maxDiameter = Math.max(...bodies.map((body) => body.diameter));
   const maxDistance = Math.max(...bodies.map((body) => body.distance));
   const metricKey = overviewMode === 'diameter' ? 'diameter' : 'distance';
-  const metricLabel = overviewMode === 'diameter' ? 'Diameter' : 'Afstand';
+  const metricLabel = overviewMode === 'diameter' ? 'Diameter' : 'Afstand tot aarde';
   const metricMax = overviewMode === 'diameter' ? maxDiameter : maxDistance;
 
   overviewChart.innerHTML = bodies.map((body) => {
@@ -242,6 +253,16 @@ function buildQuiz() {
       const buttons = questionEl.querySelectorAll('button[data-answer]');
       const isCorrect = button.dataset.answer === question.correct;
 
+      if (isCorrect) {
+        button.classList.add('is-correct');
+        confetti({
+          particleCount: 150,
+          spread: 70,
+          origin: { y: 0.6 },
+          colors: ['#9ad7ff', '#ffd57a', '#ffffff']
+        });
+      }
+
       buttons.forEach((answerButton) => {
         answerButton.disabled = true;
         if (answerButton.dataset.answer === question.correct) {
@@ -280,9 +301,19 @@ buildQuiz();
 updateOverview();
 setSelectedBody(0);
 
-overviewToggle.addEventListener('click', () => {
-  overviewMode = overviewMode === 'diameter' ? 'distance' : 'diameter';
-  overviewToggle.setAttribute('aria-pressed', String(overviewMode === 'distance'));
-  overviewModeLabel.textContent = overviewMode === 'diameter' ? 'Diameter' : 'Afstand';
+overviewControl.addEventListener('click', (e) => {
+  const btn = e.target.closest('.seg-btn');
+  if (!btn) return;
+
+  const mode = btn.dataset.mode;
+  if (mode === overviewMode) return;
+
+  overviewMode = mode;
+  overviewControl.setAttribute('data-active', mode);
+
+  overviewControl.querySelectorAll('.seg-btn').forEach((b) => {
+    b.classList.toggle('is-active', b === btn);
+  });
+
   updateOverview();
 });

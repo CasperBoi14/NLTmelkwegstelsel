@@ -163,45 +163,6 @@
     color: rgba(255,220,80,1);
   }
 
-  /* ── PROGRESS BAR ── */
-  #progress-bar {
-    position: fixed;
-    left: 2.5rem;
-    top: 50%;
-    transform: translateY(-50%);
-    z-index: 10;
-    display: flex;
-    flex-direction: column;
-    gap: 0.9rem;
-    align-items: center;
-    opacity: 0;
-    transition: opacity 0.8s ease;
-  }
-
-  #progress-bar.visible { opacity: 1; }
-
-  .progress-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.2);
-    border: 1px solid rgba(255,255,255,0.15);
-    transition: all 0.4s ease;
-    position: relative;
-  }
-
-  .progress-dot.active {
-    background: rgba(255,255,255,0.9);
-    border-color: rgba(255,255,255,0.9);
-    box-shadow: 0 0 8px rgba(255,255,255,0.5);
-    transform: scale(1.4);
-  }
-
-  .progress-dot.visited {
-    background: rgba(255,255,255,0.5);
-    border-color: rgba(255,255,255,0.4);
-  }
-
   /* ── INTRO / LOADING ── */
   #intro-screen {
     position: fixed;
@@ -400,20 +361,6 @@
 <!-- ── PLANET GLOW ── -->
 <div class="planet-glow-left" id="planet-glow"></div>
 
-<!-- ── PROGRESS DOTS ── -->
-<div id="progress-bar">
-  <div class="progress-dot" data-index="0"></div>
-  <div class="progress-dot" data-index="1"></div>
-  <div class="progress-dot" data-index="2"></div>
-  <div class="progress-dot" data-index="3"></div>
-  <div class="progress-dot" data-index="4"></div>
-  <div class="progress-dot" data-index="5"></div>
-  <div class="progress-dot" data-index="6"></div>
-  <div class="progress-dot" data-index="7"></div>
-  <div class="progress-dot" data-index="8"></div>
-  <div class="progress-dot" data-index="9"></div>
-</div>
-
 <!-- ── INFO PANEL ── -->
 <div id="info-panel">
   <div class="planet-number" id="planet-number">01 / 10</div>
@@ -439,9 +386,7 @@
 <!-- ── EINDE ── -->
 <div id="end-message">
   <div class="end-sub">
-    <div class="credit-line" style="animation-delay: 1.0s"><strong>Gemaakt door:</strong> Joost van Bottenburg, Valerie Westra, Ariana Štrbac en Casper Adeboi</div>
-    <div class="credit-line" style="animation-delay: 1.8s"><strong>3D Animations:</strong> sketchfab.com</div>
-    <div class="credit-line" style="animation-delay: 2.6s"><strong>Gemaakt met:</strong> Microsoft VSCode</div>
+    <div class="credit-line" style="animation-delay: 1.0s">Gemaakt door NLT groepje</div>
   </div>
   <button class="restart-btn" id="restart-btn">Terug naar home</button>
 </div>
@@ -950,29 +895,8 @@ function updateUI(index) {
     }
     btn.classList.add('visible');
 
-    // Progress dots
-    document.querySelectorAll('.progress-dot').forEach((dot, i) => {
-      dot.classList.remove('active', 'visited');
-      if (i < index) dot.classList.add('visited');
-      if (i === index) dot.classList.add('active');
-    });
-    document.getElementById('progress-bar').classList.add('visible');
   }, 500);
 }
-
-// ═══════════════════════════════════════════════════════════════
-//  PROGRESS DOTS CLICK HANDLER
-// ═══════════════════════════════════════════════════════════════
-document.querySelectorAll('.progress-dot').forEach((dot) => {
-  dot.style.cursor = 'pointer'; // Make it look clickable
-  dot.addEventListener('click', (e) => {
-    if (isTransitioning) return;
-    const targetIndex = parseInt(e.target.getAttribute('data-index'));
-    if (targetIndex !== currentPlanet && isStarted) {
-      goToPlanet(targetIndex);
-    }
-  });
-});
 
 // ═══════════════════════════════════════════════════════════════
 //  EASING
