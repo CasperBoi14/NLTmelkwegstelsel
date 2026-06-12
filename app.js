@@ -301,6 +301,100 @@ buildQuiz();
 updateOverview();
 setSelectedBody(0);
 
+// ═══════════════════════════════════════════════════════════════
+//  DEEP SPACE SLIDE-IN PANEL
+// ═══════════════════════════════════════════════════════════════
+const deepSpaceItems = [
+  {
+    title: 'Sagittarius A*',
+    type: 'Superzwaar zwart gat',
+    body: 'Sagittarius A* (afgekort Sgr A*) is het superzware zwarte gat in het centrum van ons Melkwegstelsel, op ongeveer 26.000 lichtjaar van de aarde. Het heeft een massa van ongeveer 4,3 miljoen zonsmassa\'s. In 2022 werd de eerste directe afbeelding ervan vastgelegd door de Event Horizon Telescope (EHT). Rondom het zwarte gat draaien sterren met extreem hoge snelheden, wat het bestaan van een enorm compact object bevestigt. Sgr A* is relatief rustig vergeleken met andere superzware zwarte gaten, maar vertoont af en toe flitsen in röntgen- en infraroodwaarnemingen.',
+    stats: [
+      { label: 'Massa', value: '4,3 miljoen ☉' },
+      { label: 'Afstand', value: '26.000 lichtjaar' },
+      { label: 'Diameter', value: '44 miljoen km' },
+      { label: 'Ontdekt', value: '1974' },
+    ],
+    media: 'model-viewer',
+    mediaSrc: 'model/black_hole.glb',
+  },
+  {
+    title: 'Orionnevel',
+    type: 'Sterrenkraamkamer',
+    body: 'De Orionnevel (ook bekend als Messier 42) is een diffuse nevel op ongeveer 1.344 lichtjaar afstand in het sterrenbeeld Orion. Het is een van de helderste nevels aan de nachtelijke hemel en met het blote oog zichtbaar als een vage plek in het zwaard van Orion. Binnenin de nevel bevindt zich de jonge open sterrenhoop het Trapezium, waarvan de intense ultraviolette straling het omringende gas laat oplichten. De Orionnevel is ongeveer 24 lichtjaar in doorsnede en wordt beschouwd als een van de meest bestudeerde en gefotografeerde objecten in de astronomie. Het is een actief gebied van stervorming waar voortdurend nieuwe sterren en planeten ontstaan.',
+    stats: [
+      { label: 'Afstand', value: '1.344 lichtjaar' },
+      { label: 'Diameter', value: '24 lichtjaar' },
+      { label: 'Sterrenbeeld', value: 'Orion' },
+      { label: 'Ontdekt', value: '1610' },
+    ],
+    media: 'img',
+    mediaSrc: 'image.png',
+  },
+  {
+    title: 'Melkwegstelsel',
+    type: 'Spiraalsterrenstelsel',
+    body: 'Het Melkwegstelsel is het sterrenstelsel waarin ons zonnestelsel zich bevindt. Het is een groot balkspiraalstelsel met een diameter van ongeveer 100.000 lichtjaar en bevat naar schatting 100 tot 400 miljard sterren. Ons zonnestelsel bevindt zich in een van de spiraalarmen, ongeveer 27.000 lichtjaar van het galactisch centrum. Het Melkwegstelsel maakt deel uit van de Lokale Groep, een verzameling van meer dan 50 sterrenstelsels waar ook Andromeda deel van uitmaakt. De naam is afgeleid van het witte, melkachtige licht dat zichtbaar is als een brede band aan de nachtelijke hemel, veroorzaakt door het licht van ontelbare sterren.',
+    stats: [
+      { label: 'Diameter', value: '100.000 lichtjaar' },
+      { label: 'Sterren', value: '100–400 miljard' },
+      { label: 'Type', value: 'Balkspiraal' },
+      { label: 'Leeftijd', value: '13,6 miljard jaar' },
+    ],
+    media: 'img',
+    mediaSrc: 'Melkwegstelsel.png',
+  },
+];
+
+const deepPanel = document.getElementById('deep-panel');
+const deepOverlay = document.getElementById('deep-overlay');
+const deepPanelInner = document.getElementById('deep-panel-inner');
+const deepPanelClose = document.getElementById('deep-panel-close');
+
+function openDeepPanel(index) {
+  const item = deepSpaceItems[index];
+  if (!item) return;
+
+  const mediaHtml = item.media === 'model-viewer'
+    ? `<model-viewer src="${item.mediaSrc}" alt="3D model van ${item.title}" auto-rotate camera-controls shadow-intensity="1" exposure="1.2" interaction-prompt="none" reveal="auto" style="width:100%;height:200px;background:transparent;border-radius:1rem;"></model-viewer>`
+    : `<img src="${item.mediaSrc}" alt="${item.title}" style="width:100%;height:200px;object-fit:cover;border-radius:1rem;">`;
+
+  deepPanelInner.innerHTML = `
+    <p class="deep-label">${item.type}</p>
+    <h2>${item.title}</h2>
+    <div class="deep-divider"></div>
+    <p class="deep-body">${item.body}</p>
+    <div class="deep-stats">
+      ${item.stats.map(s => `
+        <div class="deep-stat">
+          <span>${s.label}</span>
+          <strong>${s.value}</strong>
+        </div>
+      `).join('')}
+    </div>
+    <div class="deep-media">${mediaHtml}</div>
+  `;
+
+  deepPanel.classList.add('open');
+  deepOverlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeDeepPanel() {
+  deepPanel.classList.remove('open');
+  deepOverlay.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+document.getElementById('deep-space-grid').addEventListener('click', (e) => {
+  const card = e.target.closest('.deep-card');
+  if (!card) return;
+  openDeepPanel(Number(card.dataset.deepIndex));
+});
+
+deepPanelClose.addEventListener('click', closeDeepPanel);
+deepOverlay.addEventListener('click', closeDeepPanel);
+
 overviewControl.addEventListener('click', (e) => {
   const btn = e.target.closest('.seg-btn');
   if (!btn) return;

@@ -117,18 +117,18 @@
         <p class="eyebrow">Deep Space</p>
         <h2>Verken de wonderen buiten ons zonnestelsel.</h2>
       </div>
-      <div class="intro-grid">
-        <article class="info-panel">
+      <div class="intro-grid" id="deep-space-grid">
+        <article class="info-panel deep-card" data-deep-index="0">
           <model-viewer src="model/black_hole.glb" alt="3D model van Sagittarius A*" auto-rotate camera-controls shadow-intensity="1" exposure="1.2" interaction-prompt="none" reveal="auto" style="width: 100%; height: 250px; background: transparent;"></model-viewer>
           <h3>Sagittarius A*</h3>
           <p>Het superzware zwarte gat in het centrum van ons melkwegstelsel. Het heeft een massa van meer dan 4 miljoen keer die van de zon.</p>
         </article>
-        <article class="info-panel">
+        <article class="info-panel deep-card" data-deep-index="1">
           <img src="image.png" alt="Orionnevel" style="width: 100%; height: 250px; object-fit: cover; border-radius: 12px; margin-bottom: 1rem;">
           <h3>Orionnevel</h3>
           <p>Een enorme wolk van gas en stof (de Orionnevel) op ongeveer 1.350 lichtjaar afstand, waar voortdurend nieuwe sterren worden gevormd.</p>
         </article>
-        <article class="info-panel">
+        <article class="info-panel deep-card" data-deep-index="2">
           <img src="Melkwegstelsel.png" alt="Melkwegstelsel" style="width: 100%; height: 250px; object-fit: cover; border-radius: 12px; margin-bottom: 1rem;">
           <h3>Melkwegstelsel</h3>
           <p>Ons eigen melkwegstelsel: een spiraalvormig sterrenstelsel met honderden miljarden sterren, waar ook ons zonnestelsel deel van uitmaakt.</p>
@@ -155,6 +155,15 @@
       <div class="quiz-card" id="quiz"></div>
     </section>
   </main>
+
+  <!-- ── DEEP SPACE SLIDE-IN PANEL ── -->
+  <div class="deep-overlay" id="deep-overlay"></div>
+  <aside class="deep-panel" id="deep-panel">
+    <button class="deep-panel-close" id="deep-panel-close" aria-label="Sluiten">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M16 4L4 16M4 4l12 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+    </button>
+    <div class="deep-panel-inner" id="deep-panel-inner"></div>
+  </aside>
 
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <script src="app.js"></script>
