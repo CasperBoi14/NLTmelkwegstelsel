@@ -116,10 +116,6 @@ canvas { display: block; }
 
 /* ── NAVIGATION BUTTON ── */
 #next-btn {
-  position: fixed;
-  bottom: 2.5rem;
-  right: 2.5rem;
-  z-index: 20;
   background: transparent;
   border: 1.5px solid rgba(255,255,255,0.3);
   color: #fff;
@@ -322,3 +318,103 @@ canvas { display: block; }
 }
 
 .restart-btn:hover { background: rgba(255,255,255,0.15); box-shadow: 0 0 30px rgba(255,255,255,0.2); }
+
+/* ── NAV GROUP ── */
+#nav-group {
+  position: fixed;
+  bottom: 2.5rem;
+  right: 2.5rem;
+  z-index: 20;
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-end;
+}
+
+/* ── DROPUP BUTTON ── */
+#dropup-btn {
+  background: transparent;
+  border: 1.5px solid rgba(255,255,255,0.3);
+  color: #fff;
+  font-size: 1rem;
+  width: 48px;
+  height: 48px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  font-family: 'Orbitron', monospace;
+  opacity: 0;
+  transform: translateY(20px);
+  pointer-events: none;
+  line-height: 1;
+  padding: 0;
+}
+
+#dropup-btn.visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+#dropup-btn:hover {
+  background: rgba(255,255,255,0.12);
+  border-color: rgba(255,255,255,0.7);
+}
+
+/* ── DROPUP WRAPPER ── */
+#dropup-wrapper {
+  position: relative;
+}
+
+/* ── DROPUP MENU ── */
+#dropup-menu {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  right: 0;
+  background: rgba(6, 12, 24, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 0.6rem;
+  padding: 0.3rem;
+  min-width: 155px;
+  display: none;
+  flex-direction: column;
+  gap: 1px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+
+#dropup-menu.open {
+  display: flex;
+  animation: dropupIn 0.2s ease-out;
+}
+
+@keyframes dropupIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── DROPUP ITEMS ── */
+.dropup-item {
+  padding: 0.45rem 0.75rem;
+  font-size: 0.72rem;
+  font-family: 'Orbitron', monospace;
+  color: rgba(255,255,255,0.6);
+  cursor: pointer;
+  border-radius: 0.35rem;
+  transition: all 0.15s ease;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.dropup-item:hover {
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+}

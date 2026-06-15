@@ -320,9 +320,9 @@ const deepSpaceItems = [
   {
     title: 'Sagittarius A*',
     type: 'Superzwaar zwart gat',
-    body: 'Sagittarius A* (afgekort Sgr A*) is het superzware zwarte gat in het centrum van ons Melkwegstelsel, op ongeveer 26.000 lichtjaar van de aarde. Het heeft een massa van ongeveer 4,3 miljoen zonsmassa\'s. In 2022 werd de eerste directe afbeelding ervan vastgelegd door de Event Horizon Telescope (EHT). Rondom het zwarte gat draaien sterren met extreem hoge snelheden, wat het bestaan van een enorm compact object bevestigt. Sgr A* is relatief rustig vergeleken met andere superzware zwarte gaten, maar vertoont af en toe flitsen in röntgen- en infraroodwaarnemingen.',
+    body: '1. Wat is Sagittarius A*?<br><br>Sagittarius A* is het superzware zwarte gat in het centrum van de Melkweg, ons sterrenstelsel. Het heeft een massa van ongeveer 4,1 miljoen keer de zon en ligt op zo\'n 27.000 lichtjaar afstand van de aarde. Hierdoor zien we het licht uit die regio zoals het er 27.000 jaar geleden uitzag.<br><br>2. Ontstaan en hoe het werkt<br><br>Er zijn verschillende theorieën over het ontstaan van Sagittarius A*. Mogelijk is het gegroeid door:<br><br>Botsingen van sterrenstelsels en zwarte gaten<br>Accretie (het langzaam aantrekken van gas en stof door zwaartekracht)<br><br>Rond het zwarte gat vormt zich een accretieschijf, waarin materie extreem wordt verhit en soms röntgenstraling uitzendt. Dit helpt astronomen om zwarte gaten indirect te bestuderen.<br><br>3. Ontdekking en waarnemingen<br><br>Sagittarius A* werd ontdekt door het volgen van sterren, vooral de ster S2, die in ongeveer 16 jaar om het centrum draait. Uit die beweging bleek dat er een extreem zwaar object moest zitten: een zwart gat van miljoenen zonsmassa\'s.<br><br>In 2022 werd de eerste echte afbeelding gemaakt door de Event Horizon Telescope (EHT), een wereldwijd netwerk van telescopen. De foto toont het heldere hete gas rond het zwarte gat en de donkere "schaduw" in het midden.<br><br>Sagittarius A* is bovendien relatief rustig, maar er worden soms kleine uitbarstingen van energie waargenomen.',
     stats: [
-      { label: 'Massa', value: '4,3 miljoen ☉' },
+      { label: 'Massa', value: '4,3 miljoen keer de zonmassa' },
       { label: 'Afstand', value: '26.000 lichtjaar' },
       { label: 'Diameter', value: '44 miljoen km' },
       { label: 'Ontdekt', value: '1974' },
