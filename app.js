@@ -295,6 +295,18 @@ function updateQuizScore() {
   }
 }
 
+function handleModelError(event) {
+  const viewer = event.target;
+  if (!viewer || viewer.tagName !== 'MODEL-VIEWER') return;
+  const fallback = document.createElement('div');
+  fallback.className = 'model-fallback';
+  fallback.textContent = '3D model niet beschikbaar';
+  fallback.style.cssText = 'width:100%;height:100%;min-height:inherit;display:grid;place-items:center;text-transform:uppercase;letter-spacing:0.22em;color:var(--faint);border:1px dashed rgba(255,255,255,0.12);border-radius:1rem;background:radial-gradient(circle at 50% 35%,rgba(255,255,255,0.08),transparent 35%),#090d17;';
+  viewer.parentNode?.replaceChild(fallback, viewer);
+}
+
+document.querySelectorAll('model-viewer').forEach((v) => v.addEventListener('error', handleModelError));
+
 buildPicker();
 buildModelGrid();
 buildQuiz();
@@ -329,7 +341,7 @@ const deepSpaceItems = [
       { label: 'Ontdekt', value: '1610' },
     ],
     media: 'img',
-    mediaSrc: 'image.png',
+    mediaSrc: 'orionnevel.png',
   },
   {
     title: 'Melkwegstelsel',

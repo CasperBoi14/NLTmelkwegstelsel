@@ -1,350 +1,26 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="nl">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Reis door het Zonnestelsel</title>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600&display=swap');
-
-  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-
-  body {
-    background: url('photo-1616712134411-6b6ae89bc3ba.avif') center center / cover no-repeat #000;
-    overflow: hidden;
-    font-family: 'Exo 2', sans-serif;
-    color: #fff;
-    width: 100vw;
-    height: 100vh;
-  }
-
-  #canvas-container {
-    position: fixed;
-    inset: 0;
-    z-index: 0;
-  }
-
-  canvas { display: block; }
-
-  /* ── PLANET INFO PANEL ── */
-  #info-panel {
-    position: fixed;
-    right: 0;
-    top: 0;
-    width: 38vw;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    padding: 4rem 3.5rem 4rem 2rem;
-    z-index: 10;
-    pointer-events: none;
-    opacity: 0;
-    transform: translateX(40px);
-    transition: opacity 0.8s ease, transform 0.8s ease;
-    isolation: isolate;
-  }
-
-  #info-panel::before {
-    content: "";
-    position: absolute;
-    inset: 8% 1.25rem 8% 0;
-    border-radius: 1.8rem 0 0 1.8rem;
-    background: linear-gradient(150deg, rgba(6, 12, 24, 0.66), rgba(4, 8, 18, 0.36));
-    border: 1px solid rgba(255,255,255,0.12);
-    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(9px);
-    -webkit-backdrop-filter: blur(9px);
-    z-index: -1;
-  }
-
-  #info-panel.visible {
-    opacity: 1;
-    transform: translateX(0);
-    pointer-events: auto;
-  }
-
-  .planet-number {
-    font-family: 'Orbitron', monospace;
-    font-size: 0.75rem;
-    letter-spacing: 0.25em;
-    color: rgba(255,255,255,0.35);
-    margin-bottom: 1rem;
-    text-transform: uppercase;
-  }
-
-  .planet-name {
-    font-family: 'Orbitron', monospace;
-    font-size: clamp(2.2rem, 4vw, 3.8rem);
-    font-weight: 900;
-    line-height: 1;
-    margin-bottom: 1.5rem;
-    letter-spacing: 0.04em;
-  }
-
-  .planet-divider {
-    width: 60px;
-    height: 2px;
-    margin-bottom: 1.5rem;
-    border-radius: 2px;
-  }
-
-  .planet-description {
-    font-size: 1rem;
-    line-height: 1.8;
-    color: rgba(255,255,255,0.7);
-    font-weight: 300;
-    max-width: 420px;
-  }
-
-  .planet-stats {
-    margin-top: 2rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.6rem;
-  }
-
-  .stat-row {
-    display: flex;
-    gap: 0.75rem;
-    align-items: center;
-    font-size: 0.82rem;
-    color: rgba(255,255,255,0.45);
-    letter-spacing: 0.05em;
-  }
-
-  .stat-label {
-    font-family: 'Orbitron', monospace;
-    font-size: 0.65rem;
-    text-transform: uppercase;
-    color: rgba(255,255,255,0.3);
-    min-width: 90px;
-  }
-
-  /* ── NAVIGATION BUTTON ── */
-  #next-btn {
-    position: fixed;
-    bottom: 2.5rem;
-    right: 2.5rem;
-    z-index: 20;
-    background: transparent;
-    border: 1.5px solid rgba(255,255,255,0.3);
-    color: #fff;
-    font-family: 'Orbitron', monospace;
-    font-size: 0.75rem;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    padding: 1rem 2rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    opacity: 0;
-    transform: translateY(20px);
-    pointer-events: none;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-  }
-
-  #next-btn.visible {
-    opacity: 1;
-    transform: translateY(0);
-    pointer-events: auto;
-  }
-
-  #next-btn:hover {
-    background: rgba(255,255,255,0.12);
-    border-color: rgba(255,255,255,0.7);
-    box-shadow: 0 0 30px rgba(255,255,255,0.08);
-  }
-
-  #next-btn:active { transform: translateY(0) scale(0.97); }
-
-  #next-btn.end-btn {
-    border-color: rgba(255,200,50,0.6);
-    color: rgba(255,220,80,1);
-  }
-
-  /* ── INTRO / LOADING ── */
-  #intro-screen {
-    position: fixed;
-    inset: 0;
-    z-index: 100;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background: #000;
-    transition: opacity 1.2s ease;
-  }
-
-  #intro-screen.fade-out { opacity: 0; pointer-events: none; }
-
-  .intro-title {
-    font-family: 'Orbitron', monospace;
-    font-size: clamp(1.8rem, 4vw, 3.5rem);
-    font-weight: 900;
-    letter-spacing: 0.08em;
-    text-align: center;
-    line-height: 1.2;
-    margin-bottom: 1.5rem;
-  }
-
-  .intro-subtitle {
-    font-size: 1rem;
-    color: rgba(255,255,255,0.45);
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    margin-bottom: 3.5rem;
-    font-weight: 300;
-  }
-
-  .start-btn {
-    background: transparent;
-    border: 1.5px solid rgba(255,255,255,0.4);
-    color: #fff;
-    font-family: 'Orbitron', monospace;
-    font-size: 0.8rem;
-    letter-spacing: 0.25em;
-    text-transform: uppercase;
-    padding: 1.1rem 2.5rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    backdrop-filter: blur(10px);
-  }
-
-  .start-btn:hover {
-    background: rgba(255,255,255,0.1);
-    border-color: rgba(255,255,255,0.8);
-  }
-
-  /* ── TRAVEL OVERLAY ── */
-  #travel-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 50;
-    background: radial-gradient(ellipse at center, rgba(20,20,40,0.0) 0%, rgba(0,0,0,0.0) 100%);
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.5s ease;
-  }
-
-  #travel-overlay.active {
-    opacity: 1;
-    background: radial-gradient(ellipse at center, rgba(5,5,15,0.3) 0%, rgba(0,0,0,0.85) 100%);
-  }
-
-  #speed-lines {
-    position: fixed;
-    inset: 0;
-    z-index: 49;
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.4s ease;
-  }
-
-  #speed-lines.active { opacity: 1; }
-
-  /* ── PLANET LEFT GLOW ── */
-  .planet-glow-left {
-    position: fixed;
-    left: -10vw;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 55vw;
-    height: 55vw;
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: 5;
-    opacity: 0;
-    transition: opacity 1s ease;
-    filter: blur(60px);
-  }
-
-  .planet-glow-left.visible { opacity: 0.12; }
-
-  /* ── END MESSAGE ── */
-  #end-message {
-    position: fixed;
-    inset: 0;
-    z-index: 80;
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background: radial-gradient(ellipse at center, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.8) 100%);
-    backdrop-filter: blur(5px);
-    text-align: center;
-    padding: 2rem;
-  }
-
-  #end-message.show { display: flex; }
-
-  .end-title {
-    font-family: 'Orbitron', monospace;
-    font-size: clamp(2.5rem, 5vw, 4.5rem);
-    font-weight: 900;
-    margin-bottom: 2rem;
-    letter-spacing: 0.08em;
-    opacity: 0;
-    transform: translateY(-30px) scale(0.9);
-    animation: creditPop 1.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
-    animation-delay: 0.5s;
-    text-shadow: 0 0 20px rgba(0,0,0,1);
-  }
-
-  .end-sub {
-    margin-bottom: 3.5rem;
-    z-index: 10;
-  }
-
-  .credit-line {
-    opacity: 0;
-    transform: translateY(30px) scale(0.9);
-    animation: creditPop 1.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
-    margin-bottom: 1.2rem;
-    color: rgba(255,255,255,0.85);
-    font-size: 1.2rem;
-    letter-spacing: 0.05em;
-    text-shadow: 0 4px 15px rgba(0,0,0,1), 0 0 10px rgba(0,0,0,0.8);
-  }
-
-  @keyframes creditPop {
-    to { opacity: 1; transform: translateY(0) scale(1.0); }
-  }
-
-  .restart-btn {
-    background: transparent;
-    border: 1.5px solid rgba(255,255,255,0.35);
-    color: #fff;
-    font-family: 'Orbitron', monospace;
-    font-size: 0.8rem;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    padding: 1.2rem 2.5rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    opacity: 0;
-    animation: creditPop 1.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
-    animation-delay: 3.5s;
-    backdrop-filter: blur(10px);
-  }
-
-  .restart-btn:hover { background: rgba(255,255,255,0.15); box-shadow: 0 0 30px rgba(255,255,255,0.2); }
-</style>
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<!-- ── INTRO SCREEN ── -->
+<!-- ÔöÇÔöÇ INTRO SCREEN ÔöÇÔöÇ -->
 <div id="intro-screen">
   <div class="intro-title">Reis door het<br>Zonnestelsel</div>
   <!-- AANPASBARE TEKST: Ondertitel intro scherm -->
   <div class="intro-subtitle">Stap aan boord en verken de planeten</div>
-  <button class="start-btn" id="start-btn">Vertrek &nbsp;→</button>
+  <button class="start-btn" id="start-btn">Vertrek</button>
 </div>
 
-<!-- ── CANVAS ── -->
+<!-- ÔöÇÔöÇ CANVAS ÔöÇÔöÇ -->
 <div id="canvas-container"></div>
 
-<!-- ── SPEED LINES SVG ── -->
+<!-- ÔöÇÔöÇ SPEED LINES SVG ÔöÇÔöÇ -->
 <svg id="speed-lines" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice" style="width:100%;height:100%;position:fixed;inset:0;z-index:49;">
   <defs>
     <radialGradient id="lineGrad" cx="50%" cy="50%" r="50%">
@@ -355,13 +31,13 @@
   <g id="speed-lines-group"></g>
 </svg>
 
-<!-- ── TRAVEL OVERLAY ── -->
+<!-- ÔöÇÔöÇ TRAVEL OVERLAY ÔöÇÔöÇ -->
 <div id="travel-overlay"></div>
 
-<!-- ── PLANET GLOW ── -->
+<!-- ÔöÇÔöÇ PLANET GLOW ÔöÇÔöÇ -->
 <div class="planet-glow-left" id="planet-glow"></div>
 
-<!-- ── INFO PANEL ── -->
+<!-- ÔöÇÔöÇ INFO PANEL ÔöÇÔöÇ -->
 <div id="info-panel">
   <div class="planet-number" id="planet-number">01 / 10</div>
   <div class="planet-name" id="planet-name">Zon</div>
@@ -371,19 +47,19 @@
   <div class="planet-stats" id="planet-stats">
     <div class="stat-row">
       <span class="stat-label">Diameter</span>
-      <span class="stat-value" id="stat-diameter">—</span>
+      <span class="stat-value" id="stat-diameter">ÔÇö</span>
     </div>
     <div class="stat-row">
       <span class="stat-label">Afstand</span>
-      <span class="stat-value" id="stat-distance">—</span>
+      <span class="stat-value" id="stat-distance">ÔÇö</span>
     </div>
   </div>
 </div>
 
-<!-- ── VOLGENDE BUTTON ── -->
-<button id="next-btn">Volgende &nbsp;→</button>
+<!-- ÔöÇÔöÇ VOLGENDE BUTTON ÔöÇÔöÇ -->
+<button id="next-btn">Volgendebutton>
 
-<!-- ── EINDE ── -->
+<!-- ÔöÇÔöÇ EINDE ÔöÇÔöÇ -->
 <div id="end-message">
   <div class="end-sub">
     <div class="credit-line" style="animation-delay: 1.0s">Gemaakt door NLT groepje</div>
@@ -391,14 +67,14 @@
   <button class="restart-btn" id="restart-btn">Terug naar home</button>
 </div>
 
-<!-- ── THREE.JS EN GLTFLOADER ── -->
+<!-- ÔöÇÔöÇ THREE.JS EN GLTFLOADER ÔöÇÔöÇ -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 
 <script>
-// ═══════════════════════════════════════════════════════════════
-//  PLANEET DATA — AANPASBARE TEKST EN KLEUREN
-// ═══════════════════════════════════════════════════════════════
+// ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
+//  PLANEET DATA ÔÇö AANPASBARE TEKST EN KLEUREN
+// ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
 const PLANETS = [
   {
     name: 'Zon',
@@ -414,9 +90,9 @@ const PLANETS = [
   },
   {
     name: 'Mercurius',
-    description: 'De kleinste planeet en het dichtst bij de zon. Mercurius heeft extreme temperaturen: overdag zeer heet en ’s nachts ijskoud.',
+    description: 'De kleinste planeet en het dichtst bij de zon. Mercurius heeft extreme temperaturen: overdag zeer heet en ÔÇÖs nachts ijskoud.',
     diameter: '4.879 km',
-    distance: '± 77 miljoen km',
+    distance: '┬▒ 77 miljoen km',
     color: 0xB8A898,
     emissive: 0x3A3028,
     glowColor: '#B8A898',
@@ -427,7 +103,7 @@ const PLANETS = [
     name: 'Venus',
     description: 'Venus lijkt qua grootte op de aarde, maar heeft een dikke giftige atmosfeer en is de heetste planeet van het zonnestelsel.',
     diameter: '12.104 km',
-    distance: '± 41 miljoen km',
+    distance: '┬▒ 41 miljoen km',
     color: 0xE8C880,
     emissive: 0x604010,
     glowColor: '#E8C870',
@@ -447,9 +123,9 @@ const PLANETS = [
   },
   {
     name: 'Mars',
-    description: 'De “rode planeet”, bekend om zijn ijskappen, vulkanen en mogelijke sporen van vroeger leven.',
+    description: 'De ÔÇ£rode planeetÔÇØ, bekend om zijn ijskappen, vulkanen en mogelijke sporen van vroeger leven.',
     diameter: '6.779 km',
-    distance: '± 225 miljoen km',
+    distance: '┬▒ 225 miljoen km',
     color: 0xCC5533,
     emissive: 0x3A1008,
     glowColor: '#CC5533',
@@ -460,7 +136,7 @@ const PLANETS = [
     name: 'Jupiter',
     description: 'De grootste planeet van het zonnestelsel. Een gasreus met tientallen manen en de beroemde Grote Rode Vlek-storm.',
     diameter: '139.820 km',
-    distance: '± 588 miljoen km',
+    distance: '┬▒ 588 miljoen km',
     color: 0xC8A870,
     emissive: 0x301808,
     glowColor: '#C8A870',
@@ -471,7 +147,7 @@ const PLANETS = [
     name: 'Saturnus',
     description: 'Bekend om zijn spectaculaire ringen van ijs en steen. Saturnus is een enorme gasplaneet.',
     diameter: '116.460 km',
-    distance: '± 1,2 miljard km',
+    distance: '┬▒ 1,2 miljard km',
     color: 0xE8D8A0,
     emissive: 0x403010,
     glowColor: '#E8D8A0',
@@ -480,9 +156,9 @@ const PLANETS = [
   },
   {
     name: 'Uranus',
-    description: 'Een ijsreus die als het ware “op zijn zij” draait. Heeft een blauwgroene kleur door methaan in de atmosfeer.',
+    description: 'Een ijsreus die als het ware ÔÇ£op zijn zijÔÇØ draait. Heeft een blauwgroene kleur door methaan in de atmosfeer.',
     diameter: '50.724 km',
-    distance: '± 2,6 miljard km',
+    distance: '┬▒ 2,6 miljard km',
     color: 0x88E8E8,
     emissive: 0x084040,
     glowColor: '#88E8E8',
@@ -493,7 +169,7 @@ const PLANETS = [
     name: 'Neptunus',
     description: 'De verste grote planeet van de zon. Neptunus heeft extreem krachtige stormen en harde winden.',
     diameter: '49.244 km',
-    distance: '± 4,3 miljard km',
+    distance: '┬▒ 4,3 miljard km',
     color: 0x3050E8,
     emissive: 0x080828,
     glowColor: '#3050E8',
@@ -502,9 +178,9 @@ const PLANETS = [
   },
 ];
 
-// ═══════════════════════════════════════════════════════════════
+// ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
 //  SCENE SETUP
-// ═══════════════════════════════════════════════════════════════
+// ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
 const container = document.getElementById('canvas-container');
 const W = window.innerWidth, H = window.innerHeight;
 
@@ -525,9 +201,9 @@ camera.lookAt(-15, 0, 0);
 // Spacing constant used for placing distant background elements (Milky Way, etc.)
 const PLANET_Z_SPACING = 800;
 
-// ═══════════════════════════════════════════════════════════════
+// ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
 //  STARFIELD
-// ═══════════════════════════════════════════════════════════════
+// ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
 function createStarfield() {
   const count = 15000; // Increased star count massively!
   const geo = new THREE.BufferGeometry();
@@ -577,9 +253,9 @@ function createStarfield() {
 const stars = createStarfield();
 scene.add(stars);
 
-// ═══════════════════════════════════════════════════════════════
+// ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
 //  AMBIENT + DIRECTIONAL LIGHT
-// ═══════════════════════════════════════════════════════════════
+// ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
 // Use a HemisphereLight for a much better, realistic base illumination on 3D models
 const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1.5);
 scene.add(hemiLight);
@@ -600,9 +276,9 @@ const rimLight = new THREE.DirectionalLight(0x8899FF, 1.5);
 rimLight.position.set(-5, 3, -5);
 scene.add(rimLight);
 
-// ═══════════════════════════════════════════════════════════════
+// ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
 //  PROCEDURAL TEXTURES & REALISM
-// ═══════════════════════════════════════════════════════════════
+// ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
 function createNoiseTexture(width, height, isGasGiant, baseColorStr) {
   const canvas = document.createElement('canvas');
   canvas.width = width;
@@ -639,17 +315,17 @@ function createNoiseTexture(width, height, isGasGiant, baseColorStr) {
   return texture;
 }
 
-// ═══════════════════════════════════════════════════════════════
+// ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
 //  BUILD PLANETS (GLTF MODELS)
-// ═══════════════════════════════════════════════════════════════
+// ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
 const planetMeshes = [];
 const planetGroups = [];
 
 const gltfLoader = new THREE.GLTFLoader();
 
-// ═══════════════════════════════════════════════════════════════
+// ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
 //  PROPORTIONELE SCHALING EN OVERZICHTS POSITIES OP DE X-AS
-// ═══════════════════════════════════════════════════════════════
+// ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
 let currentXOffset = -100; 
 const trueRadii = [25.0, 0.38, 0.95, 1.0, 0.53, 11.2, 9.4, 4.0, 3.8, 0.18];
 
@@ -761,9 +437,9 @@ PLANETS.forEach((p, i) => {
   p.group = group;
 });
 
-// ═══════════════════════════════════════════════════════════════
+// ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
 //  UFO
-// ═══════════════════════════════════════════════════════════════
+// ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
 function createUFO() {
   const ufo = new THREE.Group();
 
@@ -812,9 +488,9 @@ camera.add(ufo);
 ufo.position.set(-22, -6, -40); // left of the view, slightly below and in front
 ufo.rotation.y = Math.PI; // Face the right way towards planets
 
-// ═══════════════════════════════════════════════════════════════
+// ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
 //  STATE
-// ═══════════════════════════════════════════════════════════════
+// ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
 let currentPlanet = -1;
 let isTransitioning = false;
 let isStarted = false;
@@ -830,9 +506,9 @@ const camState = {
   duration: 2.5,
 };
 
-// ═══════════════════════════════════════════════════════════════
+// ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
 //  SPEED LINE GENERATION
-// ═══════════════════════════════════════════════════════════════
+// ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
 const svgLines = document.getElementById('speed-lines-group');
 
 function generateSpeedLines() {
@@ -857,9 +533,9 @@ function generateSpeedLines() {
 
 generateSpeedLines();
 
-// ═══════════════════════════════════════════════════════════════
+// ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
 //  UPDATE UI
-// ═══════════════════════════════════════════════════════════════
+// ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
 function updateUI(index) {
   const p = PLANETS[index];
   const panel = document.getElementById('info-panel');
@@ -887,10 +563,10 @@ function updateUI(index) {
     panel.classList.add('visible');
 
     if (index < PLANETS.length - 1) {
-      btn.textContent = 'Volgende →';
+      btn.textContent = 'Volgende ÔåÆ';
       btn.classList.remove('end-btn');
     } else {
-      btn.textContent = 'Einde →';
+      btn.textContent = 'Einde ÔåÆ';
       btn.classList.add('end-btn');
     }
     btn.classList.add('visible');
@@ -898,9 +574,9 @@ function updateUI(index) {
   }, 500);
 }
 
-// ═══════════════════════════════════════════════════════════════
+// ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
 //  EASING
-// ═══════════════════════════════════════════════════════════════
+// ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
 function easeInOutCubic(x) {
   return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
 }
@@ -909,9 +585,9 @@ function easeOutExpo(x) {
   return x === 1 ? 1 : 1 - Math.pow(2, -10 * x);
 }
 
-// ═══════════════════════════════════════════════════════════════
+// ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
 //  GO TO PLANET
-// ═══════════════════════════════════════════════════════════════
+// ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
 function goToPlanet(index) {
   if (isTransitioning) return;
   isTransitioning = true;
@@ -951,7 +627,7 @@ function goToPlanet(index) {
     r * 0.1,
     camDist
   );
-  // Kijkt iets naar rechts voorbij de planeet, zodat de planeet zélf meer gecentreerd mid-links in beeld ligt!
+  // Kijkt iets naar rechts voorbij de planeet, zodat de planeet z├®lf meer gecentreerd mid-links in beeld ligt!
   const lookTarget = new THREE.Vector3(p.xPos + (r * 0.8) + 1.2, 0, 0);
 
   camState.fromPos.copy(camera.position);
@@ -991,9 +667,9 @@ function goToPlanet(index) {
   requestAnimationFrame(animTravel);
 }
 
-// ═══════════════════════════════════════════════════════════════
+// ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
 //  MILKY WAY PROCEDURAL GENERATION
-// ═══════════════════════════════════════════════════════════════
+// ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
 function createMilkyWay() {
   const particleCount = 50000;
   const geometry = new THREE.BufferGeometry();
@@ -1054,9 +730,9 @@ const milkyWay = createMilkyWay();
 milkyWay.position.set(0, 0, -(PLANETS.length * PLANET_Z_SPACING) - 3000);
 scene.add(milkyWay);
 
-// ═══════════════════════════════════════════════════════════════
+// ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
 //  TRIGGER END CINEMATIC
-// ═══════════════════════════════════════════════════════════════
+// ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
 function triggerEndSequence() {
   document.getElementById('end-message').classList.add('show');
   
@@ -1148,9 +824,9 @@ function triggerEndSequence() {
   requestAnimationFrame(animEndFlight);
 }
 
-// ═══════════════════════════════════════════════════════════════
+// ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
 //  NEXT BUTTON
-// ═══════════════════════════════════════════════════════════════
+// ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
 document.getElementById('next-btn').addEventListener('click', () => {
   if (isTransitioning) return;
 
@@ -1162,9 +838,9 @@ document.getElementById('next-btn').addEventListener('click', () => {
   goToPlanet(currentPlanet + 1);
 });
 
-// ═══════════════════════════════════════════════════════════════
+// ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
 //  START
-// ═══════════════════════════════════════════════════════════════
+// ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
 document.getElementById('start-btn').addEventListener('click', () => {
   const intro = document.getElementById('intro-screen');
   intro.classList.add('fade-out');
@@ -1173,19 +849,19 @@ document.getElementById('start-btn').addEventListener('click', () => {
   setTimeout(() => goToPlanet(0), 600);
 });
 
-// ═══════════════════════════════════════════════════════════════
+// ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
 //  RESTART
-// ═══════════════════════════════════════════════════════════════
+// ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
 document.getElementById('restart-btn').addEventListener('click', () => {
-  window.location.href = '../../index.html';
+  window.location.href = '../index.html';
   
   currentPlanet = -1;
   goToPlanet(0);
 });
 
-// ═══════════════════════════════════════════════════════════════
+// ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
 //  ANIMATION LOOP
-// ═══════════════════════════════════════════════════════════════
+// ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
 const clock = new THREE.Clock();
 
 function animate() {
@@ -1226,9 +902,9 @@ function animate() {
 
 animate();
 
-// ═══════════════════════════════════════════════════════════════
+// ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
 //  RESIZE
-// ═══════════════════════════════════════════════════════════════
+// ÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉÔòÉ
 window.addEventListener('resize', () => {
   const w = window.innerWidth, h = window.innerHeight;
   camera.aspect = w / h;
@@ -1238,3 +914,4 @@ window.addEventListener('resize', () => {
 </script>
 </body>
 </html>
+
